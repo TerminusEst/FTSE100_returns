@@ -52,27 +52,52 @@ for page_numb in ["0", "1", "2"]:
 # Use FTSE tickers to get each company data
 names, returns = [], []
 for symbol in tickers:
-    print symbol
     name, returnz = get_data(symbol)
+    print symbol, returnz
     if returnz != 999999.:
         names.append(name)
         returns.append(returnz)
 
-
-
 # Sort the lists by the returns
 returns, names = (list(x) for x in zip(*sorted(zip(returns, names), key=lambda pair: pair[0])))
 
+################################################################################
+# Scraping the S&P 100 tickers
+
+from bs4 import BeautifulSoup
+
+tickers2 = []
+
+url2 = "https://en.wikipedia.org/wiki/S%26P_100"
+html2 = urllib2.urlopen(url2).read()
+
+soup = BeautifulSoup(html2)
+tables = soup.find_all('table')
+
+for row in tables[1].findAll('tr')[1:-1]:
+	col = row.findAll('td')
+	tickers2.append(str(col[0].text))
+
+# Use FTSE tickers to get each company data
+names2, returns2 = [], []
+for symbol in tickers2:
+    name2, returnz2 = get_data(symbol)
+    print symbol, returnz2
+    if returnz2 != 999999.:
+        names2.append(name2)
+        returns2.append(returnz2)
+
+# Sort the lists by the returns
+returns2, names2 = (list(x) for x in zip(*sorted(zip(returns2, names2), key=lambda pair: pair[0])))
 
 ################################################################################
 # Plotting the Data!
 
 FTSE_name, FTSE_value = get_data("^FTSE")
 
-
 fig = plt.figure(1)
 plt.clf()
-ax = plt.subplot(111)
+ax = plt.subplot(211)
 
 xlist = np.arange(len(returns))
 plt.plot(xlist, returns, 'ok')
@@ -80,7 +105,7 @@ plt.plot(xlist, returns, 'ok')
 # Annotate company names
 for index, value in enumerate(xlist):
     x1, y1 = xlist[index], returns[index]
-    changey = [1.5, -0.75, 0.75, -1.5][index%4]     
+    changey = [2, -1, 1, -2][index%4]     
 
     ax.annotate(names[index], xy=(x1, y1), xytext=(x1, y1 + changey), 
                 horizontalalignment = 'center', fontsize = 15,
@@ -96,65 +121,29 @@ plt.ylim([-2, 25])
 
 plt.title("FTSE 100 Company Returns since 01-01-2008", fontsize = 24)
 plt.ylabel("Return", fontsize = 24)
+
+################################################################################
+
+ax = plt.subplot(212)
+
+xlist2 = np.arange(len(returns2))
+plt.plot(xlist2, returns2, 'ok')
+
+# Annotate company names
+for index, value in enumerate(xlist2):
+    x1, y1 = xlist2[index], returns2[index]
+    changey = [2, -1, 1, -2][index%4]     
+
+    ax.annotate(names2[index], xy=(x1, y1), xytext=(x1, y1 + changey), 
+                horizontalalignment = 'center', fontsize = 15,
+                arrowprops=dict(headwidth = 0.1, width = 0.0))
+
+plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
+plt.tick_params(axis='both', which='major', labelsize=20)
+
+plt.xlim([-2, 93])
+plt.ylim([-2, 25])
+
+plt.title("S&P 100 Company Returns since 01-01-2008", fontsize = 24)
+plt.ylabel("Return", fontsize = 24)
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
